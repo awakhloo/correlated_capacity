@@ -1,36 +1,39 @@
+#!/usr/bin/env python
+
+#SBATCH --time=3-23:00:00
+#SBATCH --partition ccn
+#SBATCH --nodes=1
+
 import numpy as np
 import os
 import re
 from glob import glob
-import sys
-
-imagenetpath = '/mnt/home/awakhloo/ceph/IMGNET/ILSVRC/Data/CLS-LOC/train'
-weight_path = '/mnt/home/awakhloo/ceph/SimCLR/weights/simclrv1-rn50-1000epoch.torch'
-raw_outdir = '/mnt/home/awakhloo/ceph/SimCLR/layers/raw-p70-s40' # where to save raw representations
-proj_outdir = '/mnt/home/awakhloo/ceph/SimCLR/layers/proj_15k-p70-s40' # where to save 10k dimensional projections
-code_path = '/mnt/home/awakhloo/ceph/block_projection' # code directory
-outdir = '/mnt/home/awakhloo/ceph/SimCLR/results/proj_15k-p70-s40' # where to save capacity data
-sys.path.append(code_path)
 
 import torch
 from torchvision import models, datasets, transforms
 
-import replica_correlations as rep
-import manifold_simcap_analysis as num
-import low_rank_capacity as ori
-import make_manifold_data as md 
+import capacity.replica_correlations as rep
+import capacity.manifold_simcap_analysis as num
+import capacity.low_rank_capacity as ori
+import capacity.utils.make_manifold_data as md 
 import argparse
+
+raw_outdir = os.getcwd() + '/results/simclr/layers/raw'  # where to save raw representations
+proj_outdir =  os.getcwd() + '/results/simclr/layers/proj_15k' # where to save 10k dimensional projections
+outdir = os.getcwd() + '/results/simclr/capacities' # where to save capacity data
 
 parser = argparse.ArgumentParser() 
 parser.add_argument("--samp", help = "iteration number", type=int)
+parser.add_argument("--imagenetpath", help = "path to ILSVRC training dataset (e.g., /.../CLS-LOC/train")
 args = parser.parse_args()
 samp = args.samp
+imagenetpath = args.imagenetpath
 
 np.random.seed(435348957)
-# load the weights
-d = torch.load(weight_path,
-             map_location=torch.device('cpu') )
-trunk = d['classy_state_dict']['base_model']['model']['trunk']
+# load the weights from the VISSL model zoo 
+simclr_url ='https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_1000ep_simclr_8node_resnet_16_07_20.afe428c7/model_final_checkpoint_phase999.torch'
+weights = torch.utils.model_zoo.load_url(simclr_url)
+trunk = weights['classy_state_dict']['base_model']['model']['trunk']
 trunk = {re.sub('_feature_blocks\.', '', key) : val for key, val in trunk.items()}
 dummy_weight = torch.rand((1000, 2048))
 dummy_bias = torch.rand((1000, ))
@@ -48,17 +51,24 @@ test_trnsfrm = transforms.Compose([transforms.Resize(256),
 
 dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
 mod.eval()
-sampled_classes = 70
-num_per_class = 40
 
-num_samp_reps = 5
+sampled_classes = 70 # P 
+num_per_class = 40 
+num_samp_reps = 5 
+
 proj_seeds = np.random.randint(low=0, high=10000, size=(2,num_samp_reps))
 print('Seeds: ', proj_seeds)
 
-node_names = ['x', 'layer1.1.conv1', 'layer1.2.bn3', 'layer2.1.relu', 'layer2.2.relu_2', 'layer3.0.conv3', 'layer3.2.bn1', 'layer3.3.add', 'layer3.5.relu_1', 'layer4.1.conv1', 'layer4.2.bn3', 'layer4.2.relu_1', 'layer4.2.relu_2', 'layer4.2.conv2', 'layer4.2.bn1']
+# Choose the layers we use 
+# node_names = ['x', 'layer1.1.conv1', 'layer1.2.bn3', 'layer2.1.relu', 'layer2.2.relu_2', 'layer3.0.conv3', 'layer3.2.bn1', 'layer3.3.add', 'layer3.5.relu_1', 'layer4.1.conv1', 'layer4.2.bn3', 'layer4.2.relu_1', 'layer4.2.relu_2', 'layer4.2.conv2', 'layer4.2.bn1']
+# node_names = [f'layer1.{i}.relu' for i in range(3)] + \
+#                      [f'layer2.{i}.relu' for i in range(4)] + \
+#                      [f'layer3.{i}.relu' for i in range(6)] + \
+#                      [f'layer4.{i}.relu' for i in range(3)]
+# just grab the convolutional layers: 
+node_names = ['x', 'conv1', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
 
-
-# make directories for this draw if they don't already exist
+# make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
 os.makedirs(proj_outdir + f'/rep_{samp}', exist_ok=False)
 os.makedirs(outdir + f'/rep_{samp}', exist_ok=False)

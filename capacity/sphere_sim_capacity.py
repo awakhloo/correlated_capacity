@@ -14,7 +14,17 @@ K = intrinsic dim of the spheres
 
 def get_axes(N, P, K, lam0, lam1, psi0, psi1): 
     '''
-    make some sphere axes with homogenous correlations
+    Make some sphere axes with homogenous correlations
+    Args: 
+    - N: Ambient dimensionality
+    - P: Number of manifolds
+    - K: Intrinsic dimensionality of the spheres
+    - lam0: Diagonal element of the axes covariance matrix (i.e., in the manuscript notation, this is r)
+    - lam1: Off-diagonal element of the axes covariance matrix (i.e., in the manuscript notation, this is r*\lambda)
+    - psi0: Diagonal element of the centroid covariance matrix (i.e., in the manuscript notation, this is r0)
+    - psi1: Off-diagonal element of the centroid covariance matrix (i.e., in the manuscript notation, this is r0*\psi)
+    Returns: 
+    - Array containing sphere axes and centroids in a shape (P, N, K+1)
     '''
     # axes
     ax_mat = (lam0 - lam1) * np.eye(P) + lam1 * np.ones((P,P))
@@ -38,17 +48,16 @@ def get_axes(N, P, K, lam0, lam1, psi0, psi1):
 def sphere_simcap(sphere_axes, n_rep, seed=0):
     '''
     Computes the simulation capacity of the given data
-
     Args:
-        sphere_axes: P X N X K+1 array of sphere axes, with the final rightmost dimension corresponding to centroid
-        seed: Random seed
-
+    - sphere_axes: P X N X K+1 array of sphere axes, with the final rightmost dimension corresponding to centroid
+    - n_rep: Number of label draws to try at each simulated separation problem 
+    - seed: Random seed
     Returns:
-        asim: Simulation capacity
-        P: Number of objects in XtotT
-        Nc0: Number of features to separate with 0.5 chance
-        N_vec: Values of N used in bisection search
-        p_vec: Fraction of separable trials at each value of N
+    - asim: Simulation capacity
+    - P: Number of objects in XtotT
+    - Nc0: Number of features to separate with 0.5 chance
+    - N_vec: Values of N used in bisection search
+    - p_vec: Fraction of separable trials at each value of N
     '''
     # Get the number of objects and the total number of features
     P, N, K = sphere_axes.shape
@@ -75,19 +84,17 @@ def bisection_Nc_general(sphere_axes, n_rep, Nmin, Nmax, p_tol, seed, verbose=Fa
     '''
     Performs a bisection search for the number of features such that the probability that the data
     is linearly separable is 0.5.  Implements the flag_n = 2 case from the original matlab code.
-
     Args:
-        sphere_axes: P X N X K+1 array of sphere axes, with the final rightmost dimension corresponding to centroid
-        n_rep: Number of random draws to try at each feature number N
-        Nmin: Minimum number of features to try
-        Nmax: Maximum number of features to try
-        p_tol:
-        seed: Random seed
-
+    - sphere_axes: P X N X K+1 array of sphere axes, with the final rightmost dimension corresponding to centroid
+    - n_rep: Number of random draws to try at each feature number N
+    - Nmin: Minimum number of features to try
+    - Nmax: Maximum number of features to try
+    - p_tol:
+    - seed: Random seed
     Returns:
-        Ncur: Number of features at the end of the bisection search
-        Nall_vec: Every value of N tried during the search
-        pall_vec: Computed separation probability at each value of N
+    - Ncur: Number of features at the end of the bisection search
+    - Nall_vec: Every value of N tried during the search
+    - pall_vec: Computed separation probability at each value of N
     '''
     # Get the number of input objects
     P, N, K1 = sphere_axes.shape 

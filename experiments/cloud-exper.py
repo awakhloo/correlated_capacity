@@ -5,15 +5,13 @@
 #SBATCH --nodes=1
 #SBATCH --constraint=broadwell
 
-import sys
-sys.path.append('/mnt/home/awakhloo/ceph/block_projection') 
-sys.path.append('/mnt/home/awakhloo/ceph/block_projection/replica-corr-exps')
+import os
 import numpy as np
-import mean_field_cap as mf
-import replica_correlations as rep
-import orig_mf_analysis as ori
-import manifold_simcap_analysis as num 
-import sim_block_diag as sim
+import capacity.mean_field_cap as mf
+import capacity.replica_correlations as rep
+import capacity.low_rank_capacity as ori
+import capacity.manifold_simcap_analysis as num 
+import capacity.utils.sim_block_diag as sim
 import pandas as pd
 
 P, N, samples = 80, 3800, 40
@@ -47,4 +45,4 @@ for nrun in range(num_runs):
         dct = {'intensity' : i, 'alpha_mf' : alpha_mf, 'alpha_sim' : alpha_sim, 'alpha_nc' : alpha_nc, 
             'alpha_rep' : alpha_rep, 'num_run' : nrun, 'seed' : seeds[nrun, n]}
         df = df.append(pd.DataFrame(dct, index=[n]))
-        df.to_csv('/mnt/home/awakhloo/ceph/slurm-codes/gauss_cloud.csv')
+        df.to_csv(os.getcwd() + '/results/clouds/gauss_cloud.csv')

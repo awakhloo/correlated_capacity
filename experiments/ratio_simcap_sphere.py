@@ -5,10 +5,9 @@
 #SBATCH --nodes=1
 #SBATCH --constraint=broadwell
 
-import sys
-sys.path.append('/mnt/home/awakhloo/ceph/block_projection') 
+import os 
 import numpy as np
-import sphere_sim_capacity as sim
+import capacity.sphere_sim_capacity as sim
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -48,7 +47,7 @@ for i in range(nrep):
                                 'alpha' : alpha, 
                                 'rep' : i}, index=[0])
             df = df.append(dat).reset_index(drop=True)
-            df.to_csv(f'/mnt/home/awakhloo/ceph/slurm-codes/ratio_sphere_simcap_P{P}_N{N}_K{K}_nrep{nrep}.csv')
+            df.to_csv(os.getcwd() + '/results/spheres/ratio_sphere_simcap.csv')
 
 
 
