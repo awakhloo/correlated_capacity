@@ -35,9 +35,7 @@ def make_manifold_data(dataset, sampled_classes, examples_per_class, max_class=N
     sampled_labels = np.random.choice(list(range(max_class)), size=sampled_classes, replace=False)
     # Shuffle the order to iterate through the dataset
     idx = [i for i in range(len(dataset))]
-    print('Iterating through the dataset in order = ', idx[:100])
     np.random.shuffle(idx)
-    print('Iterating through the dataset in order = ', idx[:100], flush=True)
     # Iterate through the dataset until enough samples are drawn
     for i in idx:
         sample, label = dataset[i]
