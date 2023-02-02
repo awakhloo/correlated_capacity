@@ -70,7 +70,7 @@ print('Seeds: ', proj_seeds)
 #                      [f'layer3.{i}.relu' for i in range(6)] + \
 #                      [f'layer4.{i}.relu' for i in range(3)]
 # just grab the convolutional layers: 
-node_names = ['avgpool', 'x', 'conv1', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
+node_names = ['x', 'conv1', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
 
 # make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
