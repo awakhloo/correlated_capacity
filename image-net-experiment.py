@@ -11,6 +11,7 @@ sys.path.append(os.getcwd())
 import numpy as np
 import os
 import re
+import gc
 from glob import glob
 
 import torch
@@ -90,7 +91,7 @@ for key, val in activations.items():
    if len(set([v.shape for v in val]))!=1: print( 'Uneven shapes in raw activations!')
    np.save(raw_outdir + f'/rep_{samp}/' + key + '.npy', np.array({key : val}))
 del activations
-
+gc.collect() 
 
 '''
 project down to a 15,000 dimensional ambient dimension
@@ -98,11 +99,13 @@ project down to a 15,000 dimensional ambient dimension
 np.random.seed(proj_seeds[1,samp])
 dim=15_000
 layers = glob(raw_outdir + f'/rep_{samp}/'+ '/*.npy')
+layer_sizes = {} 
 for layer in layers: 
     name = os.path.relpath(layer, raw_outdir + f'/rep_{samp}')
     data = np.load(layer, allow_pickle=True).item()
     data = list(data.values())[0]
     print(f'{name} data shape is {data[0].shape} with {len(data)} classes', flush=True)
+    layer_sizes[name] = data[0].shape # save the layer widths for supplementary table 1
     X = [d.detach().to('cpu').numpy() for d in data] 
     X = [d.reshape(d.shape[0], -1).T for d in X]
     # Get the number of features in the flattened data
@@ -114,7 +117,9 @@ for layer in layers:
         M /= np.sqrt(np.sum(M*M, axis=1, keepdims=True))
         X = [np.matmul(M, d) for d in X]
     np.save(f'{proj_outdir}/rep_{samp}/{name}', np.array(X))
-
+    del data, X, M
+    gc.collect()
+np.save(f'{proj_outdir}/layer_sizes.npy', np.array(layer_sizes))
 
 ''' 
 run the analyses
