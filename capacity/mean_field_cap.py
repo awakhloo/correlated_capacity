@@ -10,12 +10,7 @@ Separability and Geometry of Object Manifolds in Deep Neural Networks
 
 import autograd.numpy as np
 from scipy.linalg import qr
-from functools import partial
-
 from cvxopt import solvers, matrix
-from pymanopt.manifolds import Stiefel
-from pymanopt import Problem
-from pymanopt.solvers import ConjugateGradient
 
 # Configure cvxopt solvers
 solvers.options['show_progress'] = False
