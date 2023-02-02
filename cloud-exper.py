@@ -3,7 +3,10 @@
 #SBATCH --time=0-16:00:00
 #SBATCH --partition ccn
 #SBATCH --nodes=1
-#SBATCH --constraint=broadwell
+import sys
+import os 
+sys.path.append(os.getcwd()) 
+
 
 import os
 import numpy as np
