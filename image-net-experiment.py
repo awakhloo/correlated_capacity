@@ -128,10 +128,28 @@ run the analyses
 '''
 # get all layers
 layers = glob(proj_outdir + f'/rep_{samp}/*.npy')
-seeds = np.random.randint(low=1, high = 10000, size = len(layers))
-print(f'Seeds are: {seeds}', flush=True)
-
+seeds =np.array([[5474, 9428, 8187, 7445, 4267, 9482, 7962, 2729,  377,  337, 3011,
+        5053, 5332, 8623],
+       [ 744, 6432, 2067, 1431, 9695, 4023, 2644, 3639, 3122, 8002, 8650,
+         803, 9414, 7186],
+       [9739, 4844,   32, 1782,  415, 3553, 7749, 4403, 5696, 9845, 5788,
+        8673, 2232, 2363],
+       [5647, 1730, 2189, 4488, 6829, 1717, 9443, 7609, 8406, 1850, 6102,
+        3097, 6086, 2953],
+       [9368, 5097, 1573, 8049, 7518, 2211, 6030,  376, 7497, 4591, 3354,
+        7175,  669, 1731]])
+seeds_simcap = np.array([[6985, 9270, 3542, 6602, 3886, 2026, 1893, 1737, 6435, 9291, 8159,
+        3248,  207, 5315],
+       [2846,   88, 7181, 1199, 6776, 6220, 9563, 6726, 8852, 9087,  777,
+        8475, 4844, 8508],
+       [7938, 1304, 5154, 7057,  397, 5248, 9075, 2692, 5740,  570, 1847,
+         684,  656,  734],
+       [8523, 2388, 4108, 3546, 3316, 1979, 1619, 3032, 8012, 4747, 2086,
+        8629,  712, 6903],
+       [ 958, 8672, 3325, 8328, 8192, 2078, 9892, 3237, 3153, 2478, 6614,
+        2337, 5781, 2800]])
 for i, layer in enumerate(layers): 
+    np.random.seed(seeds[samp, i])
     name = os.path.relpath(layer, proj_outdir + f'/rep_{samp}')
     name = name.replace('.npy', '')
     print(f'On layer {name}', flush = True)
@@ -145,7 +163,7 @@ for i, layer in enumerate(layers):
     alpha_c, *_ = rep.manifold_analysis_corr(mfs, 0, 150)
     res_dct['alpha_c'] = alpha_c
     print(f'theory: {alpha_c}', flush=True)
-    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, n_rep=20, seed=seeds[i], reduced=True)
+    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, n_rep=20, seed=seeds_simcap[i])
     res_dct['alpha_sim'] = alpha_sim
     print(f'simulation: {alpha_sim}', flush = True)
     np.save(outdir + f'/rep_{samp}/{name}_results.npy', np.array(res_dct))
