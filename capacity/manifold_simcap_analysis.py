@@ -151,7 +151,7 @@ def bisection_Nc_general(Xtot, n_rep, Nmin, Nmax, p_tol, seed, verbose=False):
     return Ncur, Nall_vec, pall_vec
 
 
-def compute_sep_Nc_general(Xtot, N_cur, n_rep, seed, reduced=False):
+def compute_sep_Nc_general(Xtot, N_cur, n_rep, seed, reduced=True):
     '''
     Computes the separability of the input data using N_cur features. Only implements the
     flag_n = 2 case from the original matlab code.
