@@ -3,6 +3,7 @@
 #SBATCH --time=3-00:00:00
 #SBATCH --partition ccn
 #SBATCH --nodes=1
+#SBATCH -C rome,ib
 import sys
 import os 
 sys.path.append(os.getcwd()) 
@@ -57,9 +58,9 @@ test_trnsfrm = transforms.Compose([transforms.Resize(256),
 dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
 mod.eval()
 
-sampled_classes = 70 # P 
-num_per_class = 40 
-num_samp_reps = 5 
+sampled_classes = 100 # P 
+num_per_class = 70
+num_samp_reps = 5
 
 proj_seeds = np.random.randint(low=0, high=10000, size=(2,num_samp_reps))
 print('Seeds: ', proj_seeds)
@@ -71,7 +72,8 @@ print('Seeds: ', proj_seeds)
 #                      [f'layer3.{i}.relu' for i in range(6)] + \
 #                      [f'layer4.{i}.relu' for i in range(3)]
 # just grab the convolutional layers: 
-node_names = ['x', 'conv1', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
+#node_names = ['x', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
+node_names = ['x', 'layer1.0.conv1', 'layer1.1.conv2', 'layer1.2.conv3', 'layer2.1.conv1', 'layer2.2.conv2', 'layer2.3.conv3', 'layer3.1.conv1', 'layer3.2.conv2', 'layer3.3.conv3', 'layer3.5.conv1', 'layer4.0.conv2', 'layer4.1.conv3', 'layer4.2.conv3']
 
 # make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
@@ -81,17 +83,17 @@ os.makedirs(outdir + f'/rep_{samp}', exist_ok=False)
 ## sample the classes
 dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], max_class=1_000) #sample dict keys are the torch ids 
 print(len(dat))
-print([d.shape for d in dat]) 
+print([d.shape for d in dat], flush=True) 
 activations = md.extract_features(dat, mod, node_names=node_names)
 # save the raw activations
 for key, val in activations.items(): 
-   print(key)
+   print(key, flush=True)
    print(type(val)) 
    print('Number of classes and shapes are: ', len(val), val[0].shape)
    if len(set([v.shape for v in val]))!=1: print( 'Uneven shapes in raw activations!')
    np.save(raw_outdir + f'/rep_{samp}/' + key + '.npy', np.array({key : val}))
 del activations
-gc.collect() 
+gc.collect()
 
 '''
 project down to a 15,000 dimensional ambient dimension
