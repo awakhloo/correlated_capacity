@@ -145,7 +145,7 @@ for i, layer in enumerate(layers):
     alpha_c, *_ = rep.manifold_analysis_corr(mfs, 0, 150)
     res_dct['alpha_c'] = alpha_c
     print(f'theory: {alpha_c}', flush=True)
-    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, 20, seed=seeds[i])
+    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, n_rep=20, seed=seeds[i], reduced=True)
     res_dct['alpha_sim'] = alpha_sim
     print(f'simulation: {alpha_sim}', flush = True)
     np.save(outdir + f'/rep_{samp}/{name}_results.npy', np.array(res_dct))
