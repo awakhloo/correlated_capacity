@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#SBATCH --time=0-16:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --partition ccn
 #SBATCH --nodes=1
 import sys
@@ -28,10 +28,11 @@ kappa=0
 n_t=100
 n_rep=30 
 num_runs = 5
-seeds = np.random.randint(0, high=4294967295, size=(num_runs, len(intensities)))
+np.random.seed(94185)
+seeds = np.random.randint(0, high=4294967295, size=(num_runs, len(intensities), 2))
 for nrun in range(num_runs): 
     for n, i in enumerate(intensities): 
-        np.random.seed(seeds[nrun, n])
+        np.random.seed(seeds[nrun, n, 0])
         cloud = sim.gaussian_clouds(P, N, samples, level_sizes_cent, 
                                   i*corrs_cent, level_sizes_pt, i*corrs_pt, radius=1.,
                                     center_radius=5.)
@@ -43,7 +44,7 @@ for nrun in range(num_runs):
         print('Replica and NC: ', alpha_rep, alpha_nc)
         alpha_mf, *_ = mf.manifold_analysis_corr(cloud, n_t=n_t, kappa=kappa)
         alpha_mf = 1/np.mean(1/alpha_mf)
-        alpha_sim, *_ = num.manifold_simcap_analysis(cloud, n_rep=n_rep)
+        alpha_sim, *_ = num.manifold_simcap_analysis(cloud, n_rep=n_rep, seed=seeds[nrun,n,1])
         print('meanfield and Sim: ', alpha_mf, alpha_sim)
         dct = {'intensity' : i, 'alpha_mf' : alpha_mf, 'alpha_sim' : alpha_sim, 'alpha_nc' : alpha_nc, 
             'alpha_rep' : alpha_rep, 'num_run' : nrun, 'seed' : seeds[nrun, n]}
