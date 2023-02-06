@@ -19,7 +19,7 @@ solvers.options['abstol'] = 1e-12
 solvers.options['reltol'] = 1e-12
 solvers.options['feastol'] = 1e-12
 
-def manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None, n_reps=10):
+def manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None):
     '''
     Carry out the analysis on multiple manifolds.
     Args:

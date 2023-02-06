@@ -23,7 +23,7 @@ solvers.options['abstol'] = 1e-12
 solvers.options['reltol'] = 1e-12
 solvers.options['feastol'] = 1e-12
 
-def manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None, n_reps=10, seed=0):
+def manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None, n_reps=10):
     '''
     Carry out the analysis on multiple manifolds.
 
@@ -43,7 +43,6 @@ def manifold_analysis_corr(XtotT, kappa, n_t, t_vecs=None, n_reps=10, seed=0):
         res_coeff0: Residual correlation
         KK: Dimensionality of low rank structure
     '''
-    np.random.seed(seed)
     # Number of manifolds to analyze
     num_manifolds = len(XtotT)
     # Compute the global mean over all samples
