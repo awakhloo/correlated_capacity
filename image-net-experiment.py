@@ -3,7 +3,7 @@
 #SBATCH --time=3-00:00:00
 #SBATCH --partition ccn
 #SBATCH --nodes=1
-#SBATCH -C rome,ib
+#SBATCH -C skylake
 import sys
 import os 
 sys.path.append(os.getcwd()) 
@@ -25,7 +25,7 @@ import capacity.utils.make_manifold_data as md
 import argparse
 
 raw_outdir = os.getcwd() + '/results/simclr/layers/raw'  # where to save raw representations
-proj_outdir =  os.getcwd() + '/results/simclr/layers/proj_15k' # where to save 10k dimensional projections
+proj_outdir =  os.getcwd() + '/results/simclr/layers/proj_8k' # where to save 8k dimensional projections
 outdir = os.getcwd() + '/results/simclr/capacities' # where to save capacity data
 
 parser = argparse.ArgumentParser() 
@@ -67,13 +67,13 @@ print('Seeds: ', proj_seeds)
 
 # Choose the layers we use 
 # node_names = ['x', 'layer1.1.conv1', 'layer1.2.bn3', 'layer2.1.relu', 'layer2.2.relu_2', 'layer3.0.conv3', 'layer3.2.bn1', 'layer3.3.add', 'layer3.5.relu_1', 'layer4.1.conv1', 'layer4.2.bn3', 'layer4.2.relu_1', 'layer4.2.relu_2', 'layer4.2.conv2', 'layer4.2.bn1']
-# node_names = [f'layer1.{i}.relu' for i in range(3)] + \
-#                      [f'layer2.{i}.relu' for i in range(4)] + \
-#                      [f'layer3.{i}.relu' for i in range(6)] + \
-#                      [f'layer4.{i}.relu' for i in range(3)]
+node_names = [f'layer1.{i}.relu' for i in range(3)] + \
+                      [f'layer2.{i}.relu' for i in range(4)] + \
+                      [f'layer3.{i}.relu' for i in range(6)] + \
+                      [f'layer4.{i}.relu' for i in range(3)]
 # just grab the convolutional layers: 
 #node_names = ['x', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
-node_names = ['x', 'layer1.0.conv1', 'layer1.1.conv2', 'layer1.2.conv3', 'layer2.1.conv1', 'layer2.2.conv2', 'layer2.3.conv3', 'layer3.1.conv1', 'layer3.2.conv2', 'layer3.3.conv3', 'layer3.5.conv1', 'layer4.0.conv2', 'layer4.1.conv3', 'layer4.2.conv3']
+# node_names = ['x', 'layer1.0.conv1', 'layer1.1.conv2', 'layer1.2.conv3', 'layer2.1.conv1', 'layer2.2.conv2', 'layer2.3.conv3', 'layer3.1.conv1', 'layer3.2.conv2', 'layer3.3.conv3', 'layer3.5.conv1', 'layer4.0.conv2', 'layer4.1.conv3', 'layer4.2.conv3']
 
 # make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
@@ -128,28 +128,11 @@ run the analyses
 '''
 # get all layers
 layers = glob(proj_outdir + f'/rep_{samp}/*.npy')
-seeds =np.array([[5474, 9428, 8187, 7445, 4267, 9482, 7962, 2729,  377,  337, 3011,
-        5053, 5332, 8623],
-       [ 744, 6432, 2067, 1431, 9695, 4023, 2644, 3639, 3122, 8002, 8650,
-         803, 9414, 7186],
-       [9739, 4844,   32, 1782,  415, 3553, 7749, 4403, 5696, 9845, 5788,
-        8673, 2232, 2363],
-       [5647, 1730, 2189, 4488, 6829, 1717, 9443, 7609, 8406, 1850, 6102,
-        3097, 6086, 2953],
-       [9368, 5097, 1573, 8049, 7518, 2211, 6030,  376, 7497, 4591, 3354,
-        7175,  669, 1731]])
-seeds_simcap = np.array([[6985, 9270, 3542, 6602, 3886, 2026, 1893, 1737, 6435, 9291, 8159,
-        3248,  207, 5315],
-       [2846,   88, 7181, 1199, 6776, 6220, 9563, 6726, 8852, 9087,  777,
-        8475, 4844, 8508],
-       [7938, 1304, 5154, 7057,  397, 5248, 9075, 2692, 5740,  570, 1847,
-         684,  656,  734],
-       [8523, 2388, 4108, 3546, 3316, 1979, 1619, 3032, 8012, 4747, 2086,
-        8629,  712, 6903],
-       [ 958, 8672, 3325, 8328, 8192, 2078, 9892, 3237, 3153, 2478, 6614,
-        2337, 5781, 2800]])
+np.random.seed(887788668997)
+seeds = np.random.randint(low=1, high=1_000_000,size=(num_samp_rep, len(layers), 2))
+print(seeds)
 for i, layer in enumerate(layers): 
-    np.random.seed(seeds[samp, i])
+    np.random.seed(seeds[samp, i, 0])
     name = os.path.relpath(layer, proj_outdir + f'/rep_{samp}')
     name = name.replace('.npy', '')
     print(f'On layer {name}', flush = True)
@@ -163,7 +146,7 @@ for i, layer in enumerate(layers):
     alpha_c, *_ = rep.manifold_analysis_corr(mfs, 0, 150)
     res_dct['alpha_c'] = alpha_c
     print(f'theory: {alpha_c}', flush=True)
-    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, n_rep=20, seed=seeds_simcap[samp, i])
+    alpha_sim, P, Nc0, N_vec, p_vec = num.manifold_simcap_analysis(mfs, n_rep=20, seed=seeds[samp, i, 1])
     res_dct['alpha_sim'] = alpha_sim
     print(f'simulation: {alpha_sim}', flush = True)
     np.save(outdir + f'/rep_{samp}/{name}_results.npy', np.array(res_dct))
