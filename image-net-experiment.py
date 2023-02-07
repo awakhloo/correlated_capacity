@@ -58,8 +58,8 @@ test_trnsfrm = transforms.Compose([transforms.Resize(256),
 dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
 mod.eval()
 
-sampled_classes = 100 # P 
-num_per_class = 70
+sampled_classes = 80
+num_per_class = 45 #65
 num_samp_reps = 5
 
 proj_seeds = np.random.randint(low=0, high=10000, size=(2,num_samp_reps))
@@ -96,10 +96,10 @@ del activations
 gc.collect()
 
 '''
-project down to a 15,000 dimensional ambient dimension
+project down to an 8,000 dimensional ambient dimension
 ''' 
 np.random.seed(proj_seeds[1,samp])
-dim=15_000
+dim=8_000
 layers = glob(raw_outdir + f'/rep_{samp}/'+ '/*.npy')
 layer_sizes = {} 
 for layer in layers: 

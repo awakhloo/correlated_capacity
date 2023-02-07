@@ -47,6 +47,6 @@ for nrun in range(num_runs):
         alpha_sim, *_ = num.manifold_simcap_analysis(cloud, n_rep=n_rep, seed=seeds[nrun,n,1])
         print('meanfield and Sim: ', alpha_mf, alpha_sim)
         dct = {'intensity' : i, 'alpha_mf' : alpha_mf, 'alpha_sim' : alpha_sim, 'alpha_nc' : alpha_nc, 
-            'alpha_rep' : alpha_rep, 'num_run' : nrun, 'seed' : seeds[nrun, n]}
+            'alpha_rep' : alpha_rep, 'num_run' : nrun, 'seed' : seeds[nrun, n, 0], 'seed_simcap' : seeds[nrun,n,1]}
         df = df.append(pd.DataFrame(dct, index=[n]))
         df.to_csv(os.getcwd() + '/results/clouds/gauss_cloud.csv')

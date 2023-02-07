@@ -97,12 +97,6 @@ def bisection_Nc_general(Xtot, n_rep, Nmin, Nmax, p_tol, seed, verbose=True):
         pall_vec = np.nan
 
     # Check that the target value is between the max and the min
-    if fmin * fmax > 0:
-        warnings.warn("Wrong choice of Nmin and Nmax")
-        print('fmin, fmax = ', fmin, fmax)
-        Ncur = np.nan
-        Nall_vec = np.nan
-        pall_vec = np.nan
 
     # If there is something to seach over, do the bisection search
     if Ncur is not np.nan:
@@ -152,7 +146,7 @@ def bisection_Nc_general(Xtot, n_rep, Nmin, Nmax, p_tol, seed, verbose=True):
     return Ncur, Nall_vec, pall_vec
 
 
-def compute_sep_Nc_general(Xtot, N_cur, n_rep, seed, reduced=True):
+def compute_sep_Nc_general(Xtot, N_cur, n_rep, seed, reduced=False):
     '''
     Computes the separability of the input data using N_cur features. Only implements the
     flag_n = 2 case from the original matlab code.
