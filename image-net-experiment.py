@@ -67,10 +67,7 @@ print('Seeds: ', proj_seeds)
 
 # Choose the layers we use 
 # node_names = ['x', 'layer1.1.conv1', 'layer1.2.bn3', 'layer2.1.relu', 'layer2.2.relu_2', 'layer3.0.conv3', 'layer3.2.bn1', 'layer3.3.add', 'layer3.5.relu_1', 'layer4.1.conv1', 'layer4.2.bn3', 'layer4.2.relu_1', 'layer4.2.relu_2', 'layer4.2.conv2', 'layer4.2.bn1']
-node_names = [f'layer1.{i}.relu' for i in range(3)] + \
-                      [f'layer2.{i}.relu' for i in range(4)] + \
-                      [f'layer3.{i}.relu' for i in range(6)] + \
-                      [f'layer4.{i}.relu' for i in range(3)]
+node_names = ['layer1.0.relu', 'layer1.1.relu_2', 'layer2.0.relu_1', 'layer2.2.relu', 'layer2.3.relu_2', 'layer3.1.relu_1', 'layer3.3.relu', 'layer3.4.relu_2', 'layer4.0.relu_1', 'layer4.1.relu_1', 'layer4.2.relu', 'layer4.2.relu_1', 'layer4.2.relu_2']
 # just grab the convolutional layers: 
 #node_names = ['x', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
 # node_names = ['x', 'layer1.0.conv1', 'layer1.1.conv2', 'layer1.2.conv3', 'layer2.1.conv1', 'layer2.2.conv2', 'layer2.3.conv3', 'layer3.1.conv1', 'layer3.2.conv2', 'layer3.3.conv3', 'layer3.5.conv1', 'layer4.0.conv2', 'layer4.1.conv3', 'layer4.2.conv3']
@@ -128,8 +125,8 @@ run the analyses
 '''
 # get all layers
 layers = glob(proj_outdir + f'/rep_{samp}/*.npy')
-np.random.seed(887788668997)
-seeds = np.random.randint(low=1, high=1_000_000,size=(num_samp_rep, len(layers), 2))
+np.random.seed(878668397)
+seeds = np.random.randint(low=1, high=1_000_000,size=(num_samp_reps, len(layers), 2))
 print(seeds)
 for i, layer in enumerate(layers): 
     np.random.seed(seeds[samp, i, 0])
