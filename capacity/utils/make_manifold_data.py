@@ -93,6 +93,7 @@ def get_subset(dataset, p):
     idxs = [i for i in range(len(dataset)) if dataset.imgs[i][1] in class_idxs]
     return Subset(dataset, idxs), class_idxs 
 
+@torch.no_grad()
 def score_imgs(dataset, model):
     '''
     Iterate through a dataset and score the performance of the model on each image.
@@ -111,7 +112,7 @@ def score_imgs(dataset, model):
             print('max = ', imo.max())
             print('min = ', imo.min())
         ##### DELETE ABOVE
-        out = model(img).squeeze(0).softmax(0) 
+        out = model(img.unsqueeze(0)).squeeze(0).softmax(0) 
         # out = LogSoftmax()(model(img).squeeze(0))
         score = out[label]
         scores[i, 0] = label
