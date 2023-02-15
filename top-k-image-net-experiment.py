@@ -25,9 +25,9 @@ import capacity.utils.make_manifold_data as md
 import capacity.mean_field_cap as mf
 import argparse
 
-raw_outdir = os.getcwd() + '/results/simclr/layers/raw'  # where to save raw representations
-proj_outdir =  os.getcwd() + '/results/simclr/layers/proj_8k' # where to save 8k dimensional projections
-outdir = os.getcwd() + '/results/simclr/capacities' # where to save capacity data
+raw_outdir = os.getcwd() + '/results/topk/layers/raw'  # where to save raw representations
+proj_outdir =  os.getcwd() + '/results/topk/layers/proj_8k' # where to save 8k dimensional projections
+outdir = os.getcwd() + '/results/topk/capacities' # where to save capacity data
 
 parser = argparse.ArgumentParser() 
 parser.add_argument("--samp", help = "iteration number", type=int)
@@ -60,7 +60,7 @@ dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
 dl = md.get_top_k(dl, mod, p=sampled_classes, k=num_per_class)
 ### sanity check the scores
 o_scores = md.score_imgs(dl, mod)
-print(o_scores)
+print(o_scores, flush=True)
 np.save('/mnt/home/awakhloo/ceph/scores.npy', np.array(o_scores))
 ### 
 
@@ -77,7 +77,7 @@ os.makedirs(proj_outdir + f'/rep_{samp}', exist_ok=False)
 os.makedirs(outdir + f'/rep_{samp}', exist_ok=False)
 
 ## sample the classes
-dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], max_class=1_000) #sample dict keys are the torch ids 
+dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], max_class=None) #sample dict keys are the torch ids 
 print(len(dat))
 print([d.shape for d in dat], flush=True) 
 activations = md.extract_features(dat, mod, node_names=node_names)
