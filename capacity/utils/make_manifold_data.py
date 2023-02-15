@@ -5,6 +5,7 @@ import numpy as np
 from collections import defaultdict
 import torch
 from torchvision.models.feature_extraction import create_feature_extractor
+from torch.utils.data import Subset
 
 def make_manifold_data(dataset, sampled_classes, examples_per_class, max_class=None, seed=0):
     '''
@@ -74,3 +75,72 @@ def extract_features(data, model, node_names):
             features[key].append(val)
     return features 
     
+def get_subset(dataset, p): 
+    '''
+    Restrict the imagenet dataset to P-many classes.  
+    Args:
+    - dataset: torchvision dataset
+    - p: number of classes
+    Returns:
+    - subset: a pytorch dataset, restricted to the images in a specific class
+    - class_idxs: the class labels 
+    '''
+    num_cls = len(dataset.classes)
+    # choose the classes labels to look for
+    class_idxs = np.random.choice(np.arange(num_cls), size=p, replace=False)
+    print('class ids = ', class_idxs)
+    # grab the position of all images in the dataset which are in these classes
+    idxs = [i for i in range(len(dataset)) if dataset.imgs[i][1] in class_idxs]
+    return Subset(dataset, idxs), class_idxs 
+
+def score_imgs(dataset, model):
+    '''
+    Iterate through a dataset and score the performance of the model on each image.
+    Args:
+    - dataset: pytorch dataset. We assume a batchsize of 1.
+    - model: torch model 
+    Returns:
+    - scores: a tensor of shape (len(dataset), 2) containing the class id and the score.
+    '''
+    scores = torch.zeros(size=(len(dataset), 2))
+    for i, (img, label) in enumerate(dataset): 
+        #### TODO : delete
+        if i < 5:
+            imo = img.to('cpu').numpy()
+            print('img vals = ', imo)
+            print('max = ', imo.max())
+            print('min = ', imo.min())
+        ##### DELETE ABOVE
+        out = model(img).squeeze(0).softmax(0) 
+        # out = LogSoftmax()(model(img).squeeze(0))
+        score = out[label]
+        scores[i, 0] = label
+        scores[i, 1] = score 
+    print('Full scores = ', scores)
+    return scores
+
+def get_top_k(dataset, model, p, k):
+    '''
+    Get the top k images from a subset of p classes.
+    Args:
+    - dataset: pytorch style iterable dataset
+    - model: torch model
+    - p: number of classes to take
+    - k: number of samples per class
+    Returns: 
+    - dat: dataset containing the top k datapoints
+    '''
+    # subset the data to p classes and score each image
+    subset, class_idxs = get_subset(dataset, p)
+    scores = score_imgs(subset, model)
+    # sort the scores along the relevant column
+    print('scores pre sort = ', scores[:15])
+    scores = scores[scores[:, 1].argsort()]
+    print('scores post sort = ', scores[:15])
+    # determine the position of the top k images in each class
+    positions = torch.zeros(p*k)
+    for i in range(p):
+        # get the position of the top-scoring k occurences of a given label
+        positions[i*k:(i+1)*k] = torch.argwhere(scores[:, 0]==class_idxs[i]).squeeze()[:k]
+    # take a second subset of the data 
+    return Subset(subset, positions)
