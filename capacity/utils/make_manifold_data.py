@@ -8,7 +8,7 @@ from torchvision.models.feature_extraction import create_feature_extractor
 from torch.utils.data import Subset
 from tqdm import tqdm
 
-def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, max_class=None):
+def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, classes=None, max_class=None):
     '''
     Samples manifold data for use in later analysis
 
@@ -18,23 +18,23 @@ def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, max_c
             the number of classes in dataset)
         examples_per_class: Number of examples per class to draw (there should be at least
             this many examples per class in the dataset)
-        max_class (optional): Maximum class to sample from. Defaults to randomly choosing from all unique IDs. 
-        seed (optional): Random seed used for drawing samples
-
+        seed: numpy random seed
+        classes (optional): Superset of class IDs to choose randomly from. 
+        max_class (optional): Choose class IDs randomly from 0 up to this value.
+        
     Returns:
         data: list containing tensors for each class of shape (examples_per_class, input dimensions)
     '''
-    assert sampled_classes <= max_class, 'Not enough classes in the dataset'
     assert examples_per_class * sampled_classes <= len(dataset), 'Not enough examples per class in dataset'
-
+    assert classes is not None or max_class is not None, "One of max class or classes must be passed" 
     # Set the seed
     np.random.seed(seed)
     # Storage for samples
     sampled_data = defaultdict(list)
     # Sample the labels
-    if max_class is None:
-        idxs = [dataset.class_to_idx[l] for l in dataset.classes]
-        sampled_labels = np.random.choice(idxs, size=sampled_classes, replace=False)
+    if classes != None:
+        assert len(classes) >= sampled_classes, "Not enough classes in dataset"
+        sampled_labels = np.random.choice(classes, size=sampled_classes, replace=False)
     else:
         sampled_labels = np.random.choice(list(range(max_class)), size=sampled_classes, replace=False)
     # Shuffle the order to iterate through the dataset
@@ -144,4 +144,4 @@ def get_top_k(dataset, model, p, k):
         positions[i*k:(i+1)*k] = torch.argwhere(scores[:, 0]==class_idxs[i]).squeeze()[:k]
     # take a second subset of the data 
     positions = positions.to(torch.int)
-    return Subset(subset, positions)
+    return Subset(subset, positions), class_idxs

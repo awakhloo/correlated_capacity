@@ -40,7 +40,7 @@ np.random.seed(4568409)
 mod = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
 mod.eval()
 
-sampled_classes = 70
+sampled_classes = 5
 num_per_class = 45 #65
 num_samp_reps = 5
 
@@ -57,19 +57,15 @@ test_trnsfrm = transforms.Compose([transforms.Resize(256),
                                  ])
 
 dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
-dl = md.get_top_k(dl, mod, p=sampled_classes, k=num_per_class)
+dl, idxs = md.get_top_k(dl, mod, p=sampled_classes, k=num_per_class)
 ### sanity check the scores
 o_scores = md.score_imgs(dl, mod)
-print(o_scores, flush=True)
+print("Bottom 20 softmax scores = ", np.sort(np.exp(o_scores[:,1]))[:20], flush=True)
 np.save('/mnt/home/awakhloo/ceph/scores.npy', np.array(o_scores))
 ### 
 
 # Choose the layers we use 
-# node_names = ['x', 'layer1.1.conv1', 'layer1.2.bn3', 'layer2.1.relu', 'layer2.2.relu_2', 'layer3.0.conv3', 'layer3.2.bn1', 'layer3.3.add', 'layer3.5.relu_1', 'layer4.1.conv1', 'layer4.2.bn3', 'layer4.2.relu_1', 'layer4.2.relu_2', 'layer4.2.conv2', 'layer4.2.bn1']
 node_names = ['layer1.0.relu', 'layer1.1.relu_2', 'layer2.0.relu_1', 'layer2.2.relu', 'layer2.3.relu_2', 'layer3.1.relu_1', 'layer3.3.relu', 'layer3.4.relu_2', 'layer4.0.relu_1', 'layer4.1.relu_1', 'layer4.2.relu', 'layer4.2.relu_1', 'layer4.2.relu_2']
-# just grab the convolutional layers: 
-#node_names = ['x', 'layer1.1.conv1', 'layer1.2.conv2', 'layer2.0.conv3', 'layer2.2.conv1', 'layer2.3.conv2', 'layer3.0.conv3', 'layer3.2.conv1', 'layer3.3.conv2', 'layer3.4.conv3', 'layer4.0.conv1', 'layer4.1.conv2', 'layer4.2.conv3']
-# node_names = ['x', 'layer1.0.conv1', 'layer1.1.conv2', 'layer1.2.conv3', 'layer2.1.conv1', 'layer2.2.conv2', 'layer2.3.conv3', 'layer3.1.conv1', 'layer3.2.conv2', 'layer3.3.conv3', 'layer3.5.conv1', 'layer4.0.conv2', 'layer4.1.conv3', 'layer4.2.conv3']
 
 # make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
@@ -77,7 +73,8 @@ os.makedirs(proj_outdir + f'/rep_{samp}', exist_ok=False)
 os.makedirs(outdir + f'/rep_{samp}', exist_ok=False)
 
 ## sample the classes
-dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], max_class=None) #sample dict keys are the torch ids 
+dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], classes=idxs, max_class=None) #sample dict keys are the torch ids 
+np.save(raw_outdir + '/input_dat.npy', np.array(dat))
 print(len(dat))
 print([d.shape for d in dat], flush=True) 
 activations = md.extract_features(dat, mod, node_names=node_names)
