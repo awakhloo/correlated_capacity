@@ -6,6 +6,7 @@ from collections import defaultdict
 import torch
 from torchvision.models.feature_extraction import create_feature_extractor
 from torch.utils.data import Subset
+from tqdm import tqdm
 
 def make_manifold_data(dataset, sampled_classes, examples_per_class, max_class=None, seed=0):
     '''
@@ -104,20 +105,12 @@ def score_imgs(dataset, model):
     - scores: a tensor of shape (len(dataset), 2) containing the class id and the score.
     '''
     scores = torch.zeros(size=(len(dataset), 2))
-    for i, (img, label) in enumerate(dataset): 
-        #### TODO : delete
-        if i < 5:
-            imo = img.to('cpu').numpy()
-            print('img vals = ', imo)
-            print('max = ', imo.max())
-            print('min = ', imo.min())
-        ##### DELETE ABOVE
-        out = model(img.unsqueeze(0)).squeeze(0).softmax(0) 
-        # out = LogSoftmax()(model(img).squeeze(0))
+    for i, (img, label) in tqdm(enumerate(dataset)): 
+        out = model(img.unsqueeze(0)).squeeze(0).log_softmax(0)
         score = out[label]
+        # print(i,out.argmax())
         scores[i, 0] = label
         scores[i, 1] = score 
-    print('Full scores = ', scores)
     return scores
 
 def get_top_k(dataset, model, p, k):
@@ -133,10 +126,14 @@ def get_top_k(dataset, model, p, k):
     '''
     # subset the data to p classes and score each image
     subset, class_idxs = get_subset(dataset, p)
+    print(len(subset), flush=True)
     scores = score_imgs(subset, model)
-    # sort the scores along the relevant column
+    # sort the scores and data along the relevant column
     print('scores pre sort = ', scores[:15])
-    scores = scores[scores[:, 1].argsort()]
+    score_order = scores[:, 1].argsort(descending=True)
+    scores = scores[score_order]
+    subset = Subset(subset, score_order)
+    assert len(subset) == len(scores)
     print('scores post sort = ', scores[:15])
     # determine the position of the top k images in each class
     positions = torch.zeros(p*k)
@@ -144,4 +141,5 @@ def get_top_k(dataset, model, p, k):
         # get the position of the top-scoring k occurences of a given label
         positions[i*k:(i+1)*k] = torch.argwhere(scores[:, 0]==class_idxs[i]).squeeze()[:k]
     # take a second subset of the data 
+    positions = positions.to(torch.int)
     return Subset(subset, positions)
