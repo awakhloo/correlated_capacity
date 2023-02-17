@@ -32,7 +32,7 @@ def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, class
     # Storage for samples
     sampled_data = defaultdict(list)
     # Sample the labels
-    if classes != None:
+    if classes is not None:
         assert len(classes) >= sampled_classes, "Not enough classes in dataset"
         sampled_labels = np.random.choice(classes, size=sampled_classes, replace=False)
     else:

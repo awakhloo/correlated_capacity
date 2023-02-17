@@ -40,7 +40,7 @@ np.random.seed(4568409)
 mod = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
 mod.eval()
 
-sampled_classes = 5
+sampled_classes = 70
 num_per_class = 45 #65
 num_samp_reps = 5
 
@@ -74,7 +74,6 @@ os.makedirs(outdir + f'/rep_{samp}', exist_ok=False)
 
 ## sample the classes
 dat = md.make_manifold_data(dl, sampled_classes, num_per_class, seed = proj_seeds[0, samp], classes=idxs, max_class=None) #sample dict keys are the torch ids 
-np.save(raw_outdir + '/input_dat.npy', np.array(dat))
 print(len(dat))
 print([d.shape for d in dat], flush=True) 
 activations = md.extract_features(dat, mod, node_names=node_names)
