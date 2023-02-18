@@ -58,6 +58,7 @@ test_trnsfrm = transforms.Compose([transforms.Resize(256),
 
 dl = datasets.ImageFolder(imagenetpath, transform = test_trnsfrm)
 dl, idxs = md.get_top_k(dl, mod, p=sampled_classes, k=num_per_class)
+print('drew classes ', idxs, flush=True)
 ### sanity check the scores
 o_scores = md.score_imgs(dl, mod)
 print("Bottom 20 softmax scores = ", np.sort(np.exp(o_scores[:,1]))[:20], flush=True)
@@ -65,7 +66,7 @@ np.save('/mnt/home/awakhloo/ceph/scores.npy', np.array(o_scores))
 ### 
 
 # Choose the layers we use 
-node_names = ['layer1.0.relu', 'layer1.1.relu_2', 'layer2.0.relu_1', 'layer2.2.relu', 'layer2.3.relu_2', 'layer3.1.relu_1', 'layer3.3.relu', 'layer3.4.relu_2', 'layer4.0.relu_1', 'layer4.1.relu_1', 'layer4.2.relu', 'layer4.2.relu_1', 'layer4.2.relu_2']
+node_names = ['x', 'layer1.0.relu', 'layer1.1.relu_2', 'layer2.0.relu_1', 'layer2.2.relu', 'layer2.3.relu_2', 'layer3.1.relu_1', 'layer3.3.relu', 'layer3.4.relu_2', 'layer4.0.relu_1', 'layer4.1.relu_1', 'layer4.2.relu', 'layer4.2.relu_1', 'layer4.2.relu_2', 'fc']
 
 # make directories for this draw 
 os.makedirs(raw_outdir + f'/rep_{samp}', exist_ok=False)
@@ -111,7 +112,6 @@ for layer in layers:
         M /= np.sqrt(np.sum(M*M, axis=1, keepdims=True))
         X = [np.matmul(M, d) for d in X]
     np.save(f'{proj_outdir}/rep_{samp}/{name}', np.array(X))
-    del data, X, M
     gc.collect()
 np.save(f'{proj_outdir}/layer_sizes.npy', np.array(layer_sizes))
 

@@ -53,7 +53,7 @@ def manifold_simcap_analysis(XtotT, n_rep, seed=0):
     return asim0, P, Nc0, N_vec, p_vec
 
 
-def bisection_Nc_general(Xtot, n_rep, Nmin, Nmax, p_tol, seed, verbose=True):
+def bisection_Nc_general(Xtot, n_rep, Nmin, Nmax, p_tol, seed, verbose=False):
     '''
     Performs a bisection search for the number of features such that the probability that the data
     is linearly separable is 0.5.  Implements the flag_n = 2 case from the original matlab code.

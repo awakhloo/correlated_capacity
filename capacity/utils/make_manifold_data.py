@@ -5,7 +5,7 @@ import numpy as np
 from collections import defaultdict
 import torch
 from torchvision.models.feature_extraction import create_feature_extractor
-from torch.utils.data import Subset
+from torch.utils.data import Subset, DataLoader
 from tqdm import tqdm
 
 def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, classes=None, max_class=None):
@@ -35,6 +35,7 @@ def make_manifold_data(dataset, sampled_classes, examples_per_class, seed, class
     if classes is not None:
         assert len(classes) >= sampled_classes, "Not enough classes in dataset"
         sampled_labels = np.random.choice(classes, size=sampled_classes, replace=False)
+        print('Using the classes: ', sampled_labels, flush=True)
     else:
         sampled_labels = np.random.choice(list(range(max_class)), size=sampled_classes, replace=False)
     # Shuffle the order to iterate through the dataset
@@ -97,23 +98,26 @@ def get_subset(dataset, p):
     return Subset(dataset, idxs), class_idxs 
 
 @torch.no_grad()
-def score_imgs(dataset, model):
+def score_imgs(dataset, model, batch_size=256):
     '''
     Iterate through a dataset and score the performance of the model on each image.
     Args:
-    - dataset: pytorch dataset. We assume a batchsize of 1.
+    - dataset: pytorch dataset. 
     - model: torch model 
     Returns:
     - scores: a tensor of shape (len(dataset), 2) containing the class id and the score.
     '''
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     scores = torch.zeros(size=(len(dataset), 2))
-    for i, (img, label) in tqdm(enumerate(dataset)): 
-        out = model(img.unsqueeze(0)).squeeze(0).log_softmax(0)
-        score = out[label]
-        # print(i,out.argmax())
-        scores[i, 0] = label
-        scores[i, 1] = score 
-    return scores
+    labels, scores = [], []
+    for i, (img, label) in tqdm(enumerate(loader)): 
+        bsize = img.shape[0]
+        out = model(img)
+        out = out.softmax(-1) 
+        score = out[np.arange(bsize), label]
+        labels.append(label), scores.append(score) 
+    labels, scores = torch.cat(labels), torch.cat(scores)
+    return torch.stack([labels,scores], axis=-1)
 
 def get_top_k(dataset, model, p, k):
     '''
