@@ -203,13 +203,17 @@ def covariance_tensors(axes):
     ''' 
     P, D1, N = axes.shape
     axes = axes.reshape(P*D1, N).T
-    # we don't need to form C to calculate its Cholesky decomp -- just use the QR decomp + orthogonality of Q: 
-    Q, R = qr(axes, mode = 'full') # get full rank matrices to account for the case in which N < P*D1 
-    assert np.all(R.shape == (P*D1, P*D1)), 'Need more samples per manifold'
-    L = R.T 
-    print('Shape and rank of manifold axes is: ', axes.shape, np.linalg.matrix_rank(axes))
-    print('Shape and rank of covariance matrix is: ', L.shape, np.linalg.matrix_rank(L)) # note we use the fact that rank(L)=rank(C) 
-    C = L @ L.T
+    if N > P*D1:
+        # In the high dimensional regime, we avoid ever explicitly forming C to calculate its Cholesky decomp -- just use the QR decomp + orthogonality of Q: 
+        Q, R = qr(axes, mode = 'economic') # get full rank matrices to account for the case in which N < P*D1 
+        assert np.all(R.shape == (P*D1, P*D1)), 'Need more samples per manifold'
+        L = R.T 
+        print('Shape and rank of manifold axes is: ', axes.shape, np.linalg.matrix_rank(axes))
+        print('Shape and rank of covariance matrix is: ', L.shape, np.linalg.matrix_rank(L)) # note we use the fact that rank(L)=rank(C) 
+        C = L @ L.T
+    else: 
+        C = axes.T @ axes
+        L = cholesky(C)
     return C.reshape(P, D1, P, D1), L.reshape(P, D1, P, D1)
     
 def get_constraint_matrix(L, labels, sD1): 
