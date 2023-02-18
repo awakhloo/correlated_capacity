@@ -204,7 +204,7 @@ def covariance_tensors(axes):
     P, D1, N = axes.shape
     axes = axes.reshape(P*D1, N).T
     # we don't need to form C to calculate its Cholesky decomp -- just use the QR decomp + orthogonality of Q: 
-    Q, R = qr(axes, mode = 'economic')
+    Q, R = qr(axes, mode = 'full') # get full rank matrices to account for the case in which N < P*D1 
     assert np.all(R.shape == (P*D1, P*D1)), 'Need more samples per manifold'
     L = R.T 
     print('Shape and rank of manifold axes is: ', axes.shape, np.linalg.matrix_rank(axes))
