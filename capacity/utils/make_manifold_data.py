@@ -113,7 +113,12 @@ def score_imgs(dataset, model, batch_size=256):
     for i, (img, label) in tqdm(enumerate(loader)): 
         bsize = img.shape[0]
         out = model(img)
-        out = out.softmax(-1) 
+        # ###
+        # pred = out.softmax(-1).argmax(-1).squeeze(-1)
+        # print('Score on this batch = ', np.mean([1 if label[i] == pred[i] else 0 for i in range(len(pred))]))
+        # ###
+        
+        # out = out.softmax(-1) 
         score = out[np.arange(bsize), label]
         labels.append(label), scores.append(score) 
     labels, scores = torch.cat(labels), torch.cat(scores)
