@@ -30,10 +30,11 @@ def manifold_simcap_analysis(XtotT, n_rep, seed=0):
     # Get the number of objects and the total number of features
     P, N = len(XtotT), XtotT[0].shape[0]
     # Concatenate all the data and compute the global mean
-    Xori = np.concatenate(XtotT, axis=1)
-    global_mean = np.mean(Xori, axis=1, keepdims=True)
+    # Xori = np.concatenate(XtotT, axis=1)
+    # global_mean = np.mean(Xori, axis=1, keepdims=True)
     # Subtract the global mean
-    Xtot0 = [x - global_mean for x in XtotT]
+    # Xtot0 = [x - global_mean for x in XtotT]
+    Xtot0 = XtotT
     # Find the number of features for separability with 0.5 chance
     Nc, N_vec, p_vec = bisection_Nc_general(Xtot0, n_rep, 2, N, 0.05, seed)
     # Check if there was a solution, if so interpolate betweeen the boundaries for the capacity
@@ -238,7 +239,7 @@ def check_data_separability_general(X, labels):
     return sep, w, bias, margin
 
 
-def find_svm_sep_primal_wb(X, y, w_ini, kappa=0, tolerance=1e-8, flag_wb=1):
+def find_svm_sep_primal_wb(X, y, w_ini, kappa=0, tolerance=1e-8, flag_wb=0):
     '''
     Finds the optimal separating hyperplane for data X given the dichotomy specified by y.
     The plane is defined by the vector w and is found by minimizing
