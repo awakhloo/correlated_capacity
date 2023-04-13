@@ -220,9 +220,18 @@ def compute_sep_Nc_general(sphere_axes, N_cur, n_rep, seed, reduced=False):
 def check_separability(sphere_axes, N_cur, labels, num_init_samples=20): 
     '''
     Project sphere axes into a lower dimensional space and check the resulting separability
+    Args: 
+    - spheres_axes: an array containing the axes and centroids of a set of P spheres. Centroids are expected to be on the final axis.
+    - N_cur: Dimensionality to project down to
+    - labels: a set of P labels in {-1,1}
+    - num_init_samples: number of samples to consider 
+    Returns: 
+     - boolean denoting whether the spheres are linearly separable with these labels in the lower dimension. 
+    - 
     '''
     P, N, K1 = sphere_axes.shape 
     K = K1-1
+    # project onto lower D subspace 
     W = np.random.randn(N, N_cur)
     W = W / np.sqrt(np.sum(np.square(W), axis=0, keepdims=True))
     sphere_axes = np.einsum('ijk, jl -> ilk', sphere_axes, W)
@@ -294,7 +303,7 @@ def get_w(labels, samples, kap):
     feasible, w, margin, u, b = find_svm_sep_primal_wb(X, lab, tolerance=1e-8, flag_wb=1)
     return feasible, w, b
 
-def find_svm_sep_primal_wb(X, y, tolerance=1e-8, flag_wb=1):
+def find_svm_sep_primal_wb(X, y, tolerance=1e-8, flag_wb=0):
     '''
     Finds the optimal separating hyperplane for data X given the dichotomy specified by y.
     The plane is defined by the vector w and is found by minimizing

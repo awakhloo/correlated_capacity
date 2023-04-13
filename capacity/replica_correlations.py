@@ -215,8 +215,7 @@ def covariance_tensors(axes):
         print('Approximating capacity by forcing positive definiteness of correlation tensor. Need more neurons for exact calculation')
         C = axes.T @ axes
         eigs = np.linalg.eig(C)[0]
-        print('lam_min = ', np.min(eigs))
-        C = C + np.eye(C.shape[0]) * np.maximum(np.min(eigs), 1e-3) # compensate for any negative or zero eigenvalues
+        C = C + np.eye(C.shape[0]) * 1e-3 # compensate for any negative or zero eigenvalues
         L = cholesky(C, lower=True)
     return C.reshape(P, D1, P, D1), L.reshape(P, D1, P, D1)
     
