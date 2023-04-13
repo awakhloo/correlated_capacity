@@ -212,7 +212,7 @@ def covariance_tensors(axes):
         print('Shape and rank of covariance matrix is: ', L.shape, np.linalg.matrix_rank(L)) # note we use the fact that rank(L)=rank(C) 
         C = L @ L.T
     else: 
-        print('Approximating capacity by forcing positive definiteness of correlation tensor. Need more neurons for exact calculation') 
+        print('Approximating capacity by forcing positive definiteness of correlation tensor. Need more neurons for exact calculation')
         C = axes.T @ axes
         eigs = np.linalg.eig(C)[0]
         C = C + np.eye(C.shape[0]) * 1e-3 # compensate for any negative or zero eigenvalues
