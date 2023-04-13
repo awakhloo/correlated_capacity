@@ -294,7 +294,7 @@ def get_w(labels, samples, kap):
     feasible, w, margin, u, b = find_svm_sep_primal_wb(X, lab, tolerance=1e-8, flag_wb=1)
     return feasible, w, b
 
-def find_svm_sep_primal_wb(X, y, tolerance=1e-8, flag_wb=1):
+def find_svm_sep_primal_wb(X, y, tolerance=1e-8, flag_wb=0):
     '''
     Finds the optimal separating hyperplane for data X given the dichotomy specified by y.
     The plane is defined by the vector w and is found by minimizing
