@@ -152,13 +152,14 @@ def minimize_quad_form(t, L, C, sD1, kappa, labels) :
 
 def support_statistics(v, t, labels, L, C): 
     '''
-    Calculate the relevant statistics of the support vectors. This function carries out the operation
-    described in the "Numerical Implementation and Preliminary Results" section of the overleaf document. 
+    Calculate the relevant statistics of the support vectors.
     Args:
     - v: the solution to the constrained optimization problem. A vector of shape P*D1
     - t: Gaussian vector; same shape as v
     - labels: vector of labels of shape P 
     - L: Cholesky factorization of shape P, D1, P, D1
+    Returns
+     dictionary containing all support statistics 
     ''' 
     P, D1, P, D1 = L.shape
     # solve the triangular linear system Cx = L(V - T) for x as described in equation (17) of the overleaf doc 
