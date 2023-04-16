@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-#SBATCH --time=0-4:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --partition ccn
 #SBATCH --nodes=1
+#SBATCH -C skylake
 import sys
 import os 
 sys.path.append(os.getcwd()) 
