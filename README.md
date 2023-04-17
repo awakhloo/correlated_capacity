@@ -9,7 +9,7 @@ First install all required dependencies using
 pip install -r requirements.txt 
 ```
 
-The Gaussian cloud and sphere experiments can be reproduced by executing the `cloud-exper.py` and `ratio_sphere_simcap.py` scripts. To reproduce the experiments with the deep network, run:
+The Gaussian cloud and sphere experiments can be reproduced by executing the `cloud-exper.py` and `ratio_simcap_sphere.py` scripts. To reproduce the experiments with the deep network, run:
 
 ```
 image-net-experiment.py --imagenetpath /path/to/IMGNET/ILSVRC/Data/CLS-LOC/train --samp s
