@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-#SBATCH --time=2-00:00:00
-#SBATCH --partition ccn
-#SBATCH --nodes=1
 import sys
 import os 
 sys.path.append(os.getcwd()) 
