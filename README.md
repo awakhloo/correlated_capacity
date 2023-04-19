@@ -19,8 +19,6 @@ where s is an integer between 0 to 4 indicating which of the five runs should be
 
 Jupyter notebooks reproducing the relevant figures can then be found in the figs directory. 
 
-## Reference 
-
-If you use this code, please cite: 
+## DOI 
 
 [![DOI](https://zenodo.org/badge/595802352.svg)](https://zenodo.org/badge/latestdoi/595802352)
