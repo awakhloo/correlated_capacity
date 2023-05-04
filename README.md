@@ -1,5 +1,5 @@
 # correlated_capacity
-Code to reproduce the experiments presented in Wakhloo, Sussman, and Chung, Physical Review Letters (in press)
+Code to reproduce the experiments presented in Wakhloo, Sussman, and Chung, Physical Review Letters (in press, 2023)
 
 
 
