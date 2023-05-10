@@ -5,7 +5,7 @@ Code to reproduce the experiments presented in Wakhloo, Sussman, and Chung, Phys
 
 ## Reproducing the Experiments 
 
-First install all required dependencies using
+First, in a new anaconda environment, install the required dependencies using
 
 ```
 pip install -r requirements.txt 
